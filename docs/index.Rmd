@@ -12,12 +12,23 @@ mpg
 ## Scatter Plot
 ### first try
 
-```{r cars}
+```{r plot1}
 # summary(cars)
 
 
 # scatter plot
-g <- ggplot(data=mpg, aes(x = displ, y=hwy))
+g <- ggplot(data=mpg, aes(x = displ, y=hwy, color=class))
+
+g + geom_point()
+
+```
+
+```{r plot2}
+# summary(cars)
+
+
+# scatter plot
+g <- ggplot(data=mpg, aes(x = displ, y=hwy, shape=class, color=class))
 
 g + geom_point()
 
@@ -32,3 +43,129 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r ex1}
+ggplot(data = mpg,aes(x = displ, y = hwy)) + 
+  geom_point(color = "blue")
+```
+
+```{r ex4}
+ggplot(data = mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = class)) + 
+  geom_smooth() +
+  labs(title = "Relationship between engine size and mpg",
+         x = "Highway MPG",
+         y = "Engine displacement (liters)") +
+  theme_bw() +
+  theme(text=element_text(size = 16))
+
+
+```
+
+## Data Wrangling
+
+```{r}
+
+gapminder <- read_csv('https://raw.githubusercontent.com/OHI-Science/data-science-training/master/data/gapminder.csv')
+
+gapminder
+
+## useful functions
+head(gapminder) # show first 6
+tail(gapminder) # show last 6
+head(gapminder, 10) # show first 10
+
+str(gapminder) # structure
+
+names(gapminder) # column names
+
+dim(gapminder) 
+ncol(gapminder)
+nrow(gapminder)
+
+c(nrow(gapminder),ncol(gapminder))
+
+summary(gapminder)
+
+## inspect single var
+head(gapminder$lifeExp)
+
+## Actually working with data
+filter(gapminder, lifeExp<29)
+filter(gapminder, country == "Mexico")
+
+
+```
+
+```{r}
+
+xx = filter(gapminder, country == "Sweden")
+mean(xx$lifeExp)
+
+## Pipe operator %>% 
+gapminder %>% head
+
+gapminder %>% filter(country == "Sweden") %>% 
+  summarize(mean(lifeExp))
+
+
+
+```
+```{r}
+select(gapminder, year, lifeExp)
+
+gapminder %>% 
+  select(year, lifeExp) %>% 
+  tail()
+
+## combine
+
+gapminder %>% 
+  filter(country=="Cambodia") %>% 
+  select(country, year, pop, gdpPercap)
+
+gapminder %>% 
+  filter(country=="Cambodia") %>% 
+  select(-lifeExp, -continent)
+
+gapminder %>% 
+  filter(country=="Mexico", 
+         year==2002)
+
+## mutate
+
+gapminder %>% 
+  mutate(gdp = pop * gdpPercap)
+
+## add index
+gapminder %>% 
+  mutate(index = 1:nrow(gapminder)) %>% 
+  tail()
+
+## wrong
+
+gapminder %>% 
+  filter(country %in% c("Egypt", "Vietman")) %>% 
+  mutate(max_gdpPercap = max(gdpPercap))
+
+gapminder %>% 
+  filter(country %in% c("Egypt", "Vietnam")) %>% 
+  group_by(country) %>% 
+  summarize(max_gpdPercap = max(gdpPercap))
+
+gapminder %>% 
+  group_by(country) %>% 
+  summarize(max_gpdPercap = max(gdpPercap))
+## keep yar of max
+gapminder %>% 
+  group_by(country) %>% 
+  mutate(max_gpdPercap = max(gdpPercap)) %>% 
+  filter(max_gpdPercap == gdpPercap) %>% 
+  arrange(desc(max_gpdPercap))
+
+gapminder %>% 
+  group_by(country) %>% 
+  # mutate(max_gpdPercap = max(gdpPercap)) %>% 
+  filter(gdpPercap == max(gdpPercap))
+
+```
+
